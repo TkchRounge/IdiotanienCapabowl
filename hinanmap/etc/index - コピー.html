@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>Test Map</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height:70%;
+      width: 30%;
+      float: left;
+    }
+    #pano {
+      height:70%;
+      width: 40%;
+      float: left;
+    }
+    #route{
+      height:70%;
+      width: 30%;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="pano"></div>
+  <div id="route"></div>
+  <ul>
+    <li>start lat: <span id="lat"></span></li>
+    <li>start lng: <span id="lng"></span></li>
+  </ul>
+  <script>
+	var marker;
+	var goalmarker;
+	var panorama;
+	var directionsDisplay;
+	var directionsService;
+    function initMap() {
+	  var src = 'http://www.katapu.net/appli/kmldl/kmldl.kml?sid=215507572864740295322.00049e31ae027259c4dda';
+	  
+      // マップの初期化
+      directionsDisplay = new google.maps.DirectionsRenderer();
+      directionsService = new google.maps.DirectionsService();
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 35.68992, lng: 139.75065},
+        zoom: 10,
+        suppressInfoWindows: true
+      });
+      //map.setMyLocationEnabled(true);
+      directionsDisplay.setMap(map);
+      directionsDisplay.setPanel(document.getElementById('route'));
+      
+      // kml
+	      var kmlLayer = new google.maps.KmlLayer(src, {
+		  //suppressInfoWindows: true,
+		  preserveViewport: true,
+		  map: map
+		});
+		
+      // クリックイベントを追加
+      map.addListener('click', function(e) {
+        getClickLatLng(e.latLng, map);
+      });
+
+	  // kmlクリックイベントを追加
+		kmlLayer.addListener('click', function(kmlEvent) {
+      		console.log(kmlEvent.featureData.name + " : " + kmlEvent.latLng);
+      		goalmarker.setPosition(kmlEvent.latLng);
+      		calcRoute();
+      		panorama.setPosition(marker.position);
+        });
+      
+      //マーカーを設置
+      marker =  new google.maps.Marker({
+        position: new google.maps.LatLng(35.539001,134.228468),
+        map: map
+      });
+      marker.setVisible(false);
+
+	  goalmarker = new google.maps.Marker({
+        position: new google.maps.LatLng(35.539001,134.228468),
+        map: map
+      });
+      goalmarker.setVisible(false);
+    
+    panorama = new google.maps.StreetViewPanorama(
+      document.getElementById('pano'), {
+        position: marker.latLng,
+        pov: {
+          heading: 34,
+          pitch: 10
+        }
+      });
+  	map.setStreetView(panorama);
+    
+    
+    }
+
+    function getClickLatLng(lat_lng, map) {
+      // 座標を表示
+      document.getElementById('lat').textContent = lat_lng.lat();
+      document.getElementById('lng').textContent = lat_lng.lng();
+      
+
+      // マーカーを設置
+      marker.setVisible(true);
+      marker.setPosition(lat_lng);
+      
+       //marker.setMap(null);
+
+      // 座標の中心をずらす
+      // http://syncer.jp/google-maps-javascript-api-matome/map/method/panTo/
+      map.panTo(lat_lng);
+    }
+    
+    function calcRoute(){
+    	var request = {
+    		origin: marker.position,
+    		destination: goalmarker.position,
+    		travelMode: 'WALKING'
+    	}
+    	directionsService.route(request, function(response, status) {
+    		 if (status == 'OK') {
+    			directionsDisplay.setDirections(response);
+    		}
+  		});
+    }
+    
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2XvSpOKvtpW_L3DyeZ9EUYDFblny887U&callback=initMap&v=3" async defer></script>
+</body>
+</html>

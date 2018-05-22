@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>Map Entrance</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <style>
+    .page {
+  height: 100vh;
+  width: 100vw;
+  //overflow: scroll;
+}
+
+.box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-flow: column nowrap;
+  
+  /* 左右中央寄せ */
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* 上下中央寄せ */
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  padding: 50px;
+  box-sizing: border-box;
+  
+  width: 100vw;
+  height: auto;
+  min-height: 100vh;  
+  
+  background-size: cover;
+  background-position: center;
+  }
+  .animal {
+    background-image: url('./img/tokyo2.jpg');
+  }
+  .arch {
+    background-image: url('./img/arch.jpg');
+  }
+  
+  p {
+    font-size: 22px;
+    color: white;
+    //line-height: 2;
+  }
+  
+  h1 {
+    font-size: 50px;
+    color: white;
+  }
+  
+.square_btn{
+    position: relative;
+    display: inline-block;
+    font-weight: bold;
+    padding: 0.25em 0.5em;
+    text-decoration: none;
+    color: #fffcf7;
+    background: #efb03b;
+    transition: .4s;
+  }
+
+.square_btn:hover {
+    background: #4161d8;
+    color: white;
+}
+  
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="box arch">
+      <h1>東京地区避難訓練手順</h1>
+      <p>
+このツールはGoogleストリートビュー(Google Inc.)を操作し目的地までの避難訓練を行なう
+アプリケーションです。ストリートビューは一人称視点でマップ上を移動できるツールです。
+東京都内の主要な駅から近隣の避難場所（公園、学校など）までストリートビューで移動することが訓練の目標となります。
+このツールの詳細な操作手順や画面の見方はこのページ下方に記載しています。Googleストリートビューの使用経験に不安がある場合は一読をお勧めします。
+      <p>
+      <a href="random.html" class="square_btn">Start Evac</a>
+    </div>
+    <div class="box animal">
+      <h1>画面の見方、ページの操作方法</h1><br>
+        <p>LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISICING ELIT, SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA. UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS NISI UT ALIQUIP EX EA COMMODO CONSEQUAT. DUIS AUTE IRURE DOLOR IN REPREHENDERIT IN VOLUPTATE VELIT ESSE CILLUM DOLORE EU FUGIAT NULLA PARIATUR. EXCEPTEUR SINT OCCAECAT CUPIDATAT NON PROIDENT, SUNT IN CULPA QUI OFFICIA DESERUNT MOLLIT ANIM ID EST LABORUM.
+      </p>
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false" data-text="避難訓練してみよう"  data-size="large">Tweet</a>
+    </div>
+  </div>
+</body>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</html>

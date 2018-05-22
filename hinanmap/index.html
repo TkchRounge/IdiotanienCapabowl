@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>Test Map</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height:70%;
+      width: 30%;
+      float: left;
+    }
+    #pano {
+      height:80%;
+      width: 40%;
+      float: left;
+    }
+    #route{
+      height: 90%;
+      width: 30%;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="pano"></div>
+  <div id="route"></div>
+  <ul>
+    <li><span id="gdist"></span></li>
+    <li><span id="result"></span></li>
+<!--
+    <li>start lng: <span id="lng"></span></li>
+  -->
+  </ul>
+  <script>
+	var marker;
+	var goalmarker;
+	var panorama;
+	var directionsDisplay;
+	var directionsService;
+	var movecount;
+	var starttime;
+    function initMap() {
+	  var src = 'http://www.katapu.net/appli/kmldl/kmldl.kml?sid=215507572864740295322.00049e31ae027259c4dda';
+	  
+	  movecount = 0;
+	  starttime = new Date();
+	  
+      // マップの初期化
+      directionsDisplay = new google.maps.DirectionsRenderer();
+      directionsService = new google.maps.DirectionsService();
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 35.68992, lng: 139.75065},
+        zoom: 10,
+        suppressInfoWindows: true
+      });
+      //map.setMyLocationEnabled(true);
+      directionsDisplay.setMap(map);
+      directionsDisplay.setPanel(document.getElementById('route'));
+      
+      // kml
+	      var kmlLayer = new google.maps.KmlLayer(src, {
+		  //suppressInfoWindows: true,
+		  preserveViewport: true,
+		  map: map
+		});
+		
+      // クリックイベントを追加
+      map.addListener('click', function(e) {
+        getClickLatLng(e.latLng, map);
+      });
+
+	  // kmlクリックイベントを追加
+		kmlLayer.addListener('click', function(kmlEvent) {
+      		console.log(kmlEvent.featureData.name + " : " + kmlEvent.latLng);
+      		goalmarker.setPosition(kmlEvent.latLng);
+      		calcRoute();
+      		panorama.setPosition(marker.position);
+        });
+      
+      //URL解析
+      let params = (new URL(document.location)).searchParams;
+      let count = 0;
+      let s_lat = params.get("slat");
+      let s_lng = params.get("slng");
+      let g_lat = params.get("glat");
+      let g_lng = params.get("glng");
+      if(s_lat !== null) count++;
+      else s_lat = 35.675105143576985;
+      if(s_lng !== null) count++;
+      //console.log("url querry : " + s_lng);
+      else s_lng = 139.7275271999515;
+      if(g_lat !== null) count++;
+      else g_lat = 35.675105143576985;
+      if(g_lng !== null) count++;
+      else g_lng = 139.7275271999515;
+      
+      //秋葉原駅 35.69949972161811 139.77264665931102,
+      //->
+      //千代田区立昌平小学校 : (35.701114089605255, 139.76986080408096)
+      //ちよだパークサイドプラザ : (35.699233237209036, 139.7784948348999)
+      //千代田区立神田さくら館 : (35.693203755259184, 139.7684097290039)
+      
+      //35.675105143576985
+      //139.7275271999515
+      
+      //マーカーを設置
+      marker =  new google.maps.Marker({
+        position: new google.maps.LatLng(s_lat,s_lng),
+        map: map
+      });
+      
+	  
+	  goalmarker = new google.maps.Marker({
+        position: new google.maps.LatLng(g_lat,g_lng),
+        map: map
+      });
+     
+     
+    panorama = new google.maps.StreetViewPanorama(
+      document.getElementById('pano'), {
+        position: marker.latLng,
+        pov: {
+          heading: 34,
+          pitch: 10
+        }
+      });
+  	map.setStreetView(panorama);
+  	
+  	//パノラマ、ゴール間計算、イベント
+     panorama.addListener('position_changed', function() {
+     let dist = google.maps.geometry.spherical.computeDistanceBetween(
+      				panorama.getPosition(),goalmarker.getPosition());
+     var gtime = new Date();
+     gtime = gtime - starttime;
+	 console.log("peg distance : " + dist );
+     document.getElementById('gdist').textContent =
+     	"ゴールまでの距離:" + parseInt(dist) + "メートル";
+     	//movecount++;
+     	if( parseInt(dist) < 101 ){
+     		document.getElementById('result').textContent =
+     			"ゴールしました（移動時間:"+ gtime/1000 + "秒、移動回数:"+movecount+"）";
+     			// gtime.prototype.getSeconds()
+     	}
+ 	 });
+    
+    //訓練開始
+    if(count == 4){
+    	console.log("start route matching");
+     	calcRoute();
+      	panorama.setPosition(marker.position);
+     }else{
+     	marker.setVisible(false);
+     	goalmarker.setVisible(false);
+     }
+    
+    
+  }
+
+    function getClickLatLng(lat_lng, map) {
+      // 座標を表示
+      //document.getElementById('lat').textContent = lat_lng.lat();
+      //document.getElementById('lng').textContent = lat_lng.lng();
+      
+
+      // マーカーを設置
+      marker.setVisible(true);
+      marker.setPosition(lat_lng);
+      
+       //marker.setMap(null);
+
+      // 座標の中心をずらす
+      map.panTo(lat_lng);
+    }
+    
+    function calcRoute(){
+    	var request = {
+    		origin: marker.position,
+    		destination: goalmarker.position,
+    		travelMode: 'WALKING'
+    	}
+    	directionsService.route(request, function(response, status) {
+    		 if (status == 'OK') {
+    			directionsDisplay.setDirections(response);
+    		}
+  		});
+    }
+    
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyA2XvSpOKvtpW_L3DyeZ9EUYDFblny887U&callback=initMap&v=3" async defer></script>
+</body>
+</html>

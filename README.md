@@ -1,2 +1,2 @@
 # IdiotanienCapabowl
-馬鹿谷園出来茶漬け
+馬鹿谷園可能茶漬け
